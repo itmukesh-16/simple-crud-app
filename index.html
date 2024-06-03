@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fetching data from Mongo Atlas</title>
+  <style>
+    #container {
+      width: 100%;
+      height: 100%;
+      background-color: red;
+    }
+  </style>
+  <script>
+    function fetchFromAtlas() {
+      fetch("http://localhost:3000/api/products/all")
+        .then((res) => res.json())
+        .then((products) => {
+          products.map((item) => {
+            var div = document.createElement("div");
+            var divId = document.getElementById("container");
+            div.innerHTML = `Product: ${item.name}`;
+            divId.appendChild(div);
+          });
+        })
+        .catch((error) => {
+          console.error("Error while fetching data:", error);
+        });
+    }
+
+    function btnSearchValue() {
+      var txtSearchBox = document.getElementById("txtSearchBox");
+      var searchResult = document.getElementById("searchResult");
+      var flag = 0;
+      fetch(`http://localhost:3000/api/products/all`)
+        .then((res) => res.json())
+        .then((products) => {
+          products.map((product) => {
+            if (product.name === txtSearchBox.value) {
+              searchResult.innerHTML = "";
+              searchResult.innerHTML = `${txtSearchBox.value}`;
+              flag++;
+            }
+          });
+        })
+        .catch((error) => {
+          console.error("Error while searching data:", error);
+        });
+    }
+
+    function handleFormSubmit(event) {
+      event.preventDefault();
+      var name = document.getElementById("name").value;
+
+      fetch("http://localhost:3000/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ name: name })
+      })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Data inserted successfully:", data);
+        // Optionally, refresh the product list or clear the form
+      })
+      .catch((error) => {
+        console.error("Error while inserting data:", error);
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      var form = document.querySelector("form");
+      form.addEventListener("submit", handleFormSubmit);
+    });
+  </script>
+</head>
+<body>
+  <div id="container"></div>
+  <button onclick="fetchFromAtlas()">Fetch Data</button>
+
+  <div id="searchSec">
+    <input type="text" id="txtSearchBox" />
+    <button onclick="btnSearchValue()">Search Value</button>
+    <div id="searchResult"></div>
+  </div>
+
+  <div>
+    <form>
+      <input type="text" name="name" id="name" required>
+      <button type="submit">Insert Value</button>
+    </form>
+  </div>
+</body>
+</html>
